@@ -118,7 +118,7 @@ int main() {
 	delete right_player_x;// deallocating memory of players
 	delete left_player_x;// deallocating memory of players
 	while (!gameover) {
-		//build(board, ball, player1, player2);
+		build(board, ball, player1, player2);
 		player1.move = player1.movement_input_player();
 		player2.move = player2.movement_input_player();
 		if (player1.move != STOP)
@@ -126,13 +126,4 @@ int main() {
 		if (player2.move != STOP) 
 			player2.player_position = player2.player_move(player2);
 	}
-		/*
-		momvement_player_left = movement_input_player1();
-		momvement_player_right = movement_input_player2();
-		if(momvement_player_left != STOP)
-			left_player_x = player_move(momvement_player_left, left_player_x, left_player_x[0]);
-		if(momvement_player_right != STOP)
-			right_player_x = player_move(momvement_player_right, right_player_x, right_player_x[0]);
-	}
-	*/
 }
