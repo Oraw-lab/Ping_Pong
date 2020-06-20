@@ -4,27 +4,93 @@ using namespace std;
 
 enum eDirection{STOP = 0 , UP , DOWN};
 
-void build(const int high, const int wide, int ball_high, int ball_wide, const int arr_right[10] , const int arr_left[10] , const int place_left, const int place_right) {
+class Boardobj{
+public:
+	int place_in_y;
+	int place_in_x;
+	
+	Boardobj(int y, int x) {
+		place_in_y = y;
+		place_in_x = x;
+	}
+};
+
+class Players {
+public:
+	int * player_position;
+	int place_in_wide;
+	int player_score = 0;
+	eDirection move = STOP;
+	Players(int* ptr, int y) {
+		player_position = creating_player(10);
+		place_in_wide = y;
+	}
+	int* creating_player(int num) {
+		int* arr = new int[5]; // setting array to have 5 places
+		for (int i{}; i < 5; i++) {
+			arr[i] = num;  // assigned number to array
+			num++;
+		}
+		return arr;// returning place for i 
+
+	}
+	eDirection movement_input_player() {
+		if (_kbhit()) { // waiting until key is being pressed
+			switch (_getch()) {
+			case 'k':
+			case 's':
+				return DOWN; // assigning DOWN to movement - player 1 - left player
+			case 'i':
+			case 'w':
+				return UP; // assigning UP to movement - player 1 - left player
+			default:
+				return STOP; // in case of player hit wrong key
+			}
+		}
+	}
+
+	int* player_move(Players player) {
+		int* new_arr{}; // init pointers
+		int first_num_in_arr{};
+		switch (player.move) {
+		case UP:
+			first_num_in_arr = player.player_position[0];
+			first_num_in_arr--;
+			new_arr = creating_player(first_num_in_arr); // adding 1 for snake in high to move snake top
+			player.move = STOP;
+			return new_arr; //returning new array to main
+		case DOWN:
+			first_num_in_arr = player.player_position[0];
+			first_num_in_arr++;
+			new_arr = creating_player(first_num_in_arr); // adding 1 for snake in high to move snake down
+			player.move = STOP;
+			return new_arr; //returning new array to main
+		default:
+			return player.player_position;
+		}
+	}
+};
+void build(const Boardobj board, Boardobj ball, const Players player1  , const Players player2) {
 	system("cls");
 	int place_in_array_right = 0;
 	int place_in_array_left = 0;
-	for (int i{}; i < high; i++) {
+	for (int i{}; i < board.place_in_x; i++) {
 		for (int j{}; j < 1; j++) { 
-			if (i == 0 || i == high -1) {
-				for (int w{}; w < wide; w++)
+			if (i == 0 || i == board.place_in_x -1) {
+				for (int w{}; w < board.place_in_y; w++)
 					cout << "#"; // builds floor and celling
 			}
 			else {
 				cout << "#";
-				for (int w{}; w < wide - 2; w++) {
-					if (i == ball_high && w == ball_wide)
+				for (int w{}; w < board.place_in_y - 2; w++) {
+					if (i == ball.place_in_x && w == ball.place_in_y)
 						cout << "*";// placing ball
-					else if (arr_left[place_in_array_left] == i && place_left == w) {
+					else if (player2.player_position[place_in_array_left] == i && player2.place_in_wide == w) {
 						cout << "|"; // building left player
 						place_in_array_left++; // adding 1 to move in array
 					}
-					else if (arr_right[place_in_array_right] == i && place_right == w) {
-						cout << "|";
+					else if (player1.player_position[place_in_array_right] == i && player1.place_in_wide == w) {
+						cout << "|"; // building right player
 						place_in_array_right++;
 					}
 					else
@@ -38,81 +104,35 @@ void build(const int high, const int wide, int ball_high, int ball_wide, const i
 
 }
 
-int* creating_player(int num) {
-	int* arr = new int[5]; // setting array to have 5 places
-	int first_place = num; // setting place in high
-	for (int i{}; i <= 5; i++) {
-		arr[i] = first_place;  // assigned number to array
-		first_place++;
-	}
-	return arr;// returning place for i 
-
-}
-
-eDirection movement_input() {
-	if (_kbhit()) { // waiting until key is being pressed
-		switch (_getch()) {
-		case 's':
-			return DOWN; // assigning DOWN to movement - player 1
-			break;
-		case 'w':
-			return UP; // assigning UP to movement - player 1
-			break;
-		case 'i':
-			return UP; // assigning UP to movement - Player 2
-			break;
-		case 'k':
-			return DOWN; // assigning UP to movement - Player 2
-			break;
-		}
-	}
-}
-
-int * snake_move(eDirection& movement, int * players_arr, int first_num_in_arr) {
-	int * new_arr{}; // init pointers
-	switch (movement) {
-	case UP:
-		first_num_in_arr++;
-		new_arr = creating_player(first_num_in_arr); // adding 1 for snake in high to move snake top
-		movement = STOP;
-		return new_arr; //returning new array to main
-		break;
-	case DOWN:
-		first_num_in_arr--;
-		new_arr = creating_player(first_num_in_arr); // adding 1 for snake in high to move snake down
-		movement = STOP;
-		return new_arr; //returning new array to main
-		break;
-	}
-}
-
-
 int main() {
-	int score_player_a{};
-	int score_player_b{};
 	bool gameover = false;
-	//borad high
-	const int high = 20;
-	//borad wide
-	const int wide = 70;
-	//ball in the middle for the start
-	int ball_high = high / 2;
-	int ball_wide = wide / 2;
-	int * right_player_x = creating_player(10); // creating first player 
-	int * left_player_x = creating_player(10);//creating left player
-	int wide_player_right = wide - 3; // placing player in the right side at the right wide
-	int wide_player_left = wide - (wide - 1); // placing player in the left side of the right wide
-	//asssigned STOP to each time in order for player to stop moving during run time when didnt press a key
-	eDirection momvement_player_left = STOP;
-	eDirection momvement_player_right = STOP;
+	//creating board obj , board x = 20 board y = 70
+	Boardobj board(70, 20);
+	//creating ball obj , ball in the middle for the start
+	Boardobj ball(board.place_in_y/ 2, board.place_in_x/ 2);
+	int* right_player_x{}; // creating player1 pointer
+	int* left_player_x{};// creating player2 pointer
+	// creating 2 players
+	Players player1(right_player_x, board.place_in_y - 3);
+	Players player2(left_player_x, board.place_in_y - (board.place_in_y - 1));
+	delete right_player_x;// deallocating memory of players
+	delete left_player_x;// deallocating memory of players
 	while (!gameover) {
-		build(high, wide, ball_high, ball_wide, right_player_x, left_player_x, wide_player_left, wide_player_right);
-		momvement_player_left = movement_input();
-		momvement_player_left = movement_input();
-		if(momvement_player_left != STOP)
-			left_player_x = snake_move(momvement_player_right, left_player_x, left_player_x[0]);
-		if(momvement_player_right != STOP)
-			right_player_x = snake_move(momvement_player_left, right_player_x, right_player_x[0]);
+		//build(board, ball, player1, player2);
+		player1.move = player1.movement_input_player();
+		player2.move = player2.movement_input_player();
+		if (player1.move != STOP)
+			player1.player_position = player1.player_move(player1);
+		if (player2.move != STOP) 
+			player2.player_position = player2.player_move(player2);
 	}
-	
+		/*
+		momvement_player_left = movement_input_player1();
+		momvement_player_right = movement_input_player2();
+		if(momvement_player_left != STOP)
+			left_player_x = player_move(momvement_player_left, left_player_x, left_player_x[0]);
+		if(momvement_player_right != STOP)
+			right_player_x = player_move(momvement_player_right, right_player_x, right_player_x[0]);
+	}
+	*/
 }
