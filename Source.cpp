@@ -17,19 +17,6 @@ public:
 };
 
 class Players {
-private:
-	/*
-	Routine Description:
-		Setting direction based on the given direction on args
-
-	Arguments:
-		Player obj = Changing this player position
-		eDirection = Changing the Direction based to given
-	Return Value:
-		None = changing the poistion of the player
-
-	*/
-	void setter_direction(Players player, const eDirection way) { player.move = way; }
 public:
 	int * player_position;
 	int place_in_wide;
@@ -71,37 +58,6 @@ public:
 	}
 	/*
 	Routine Description:
-		Assign enum to player based on thier pressed key
-
-	Arguments:
-		Playyers obj = inorder to change direction setting need to recvice to what player change move
-	Return Value:
-		eDirection - returning the direction that the player will face and assisning it to Player.move
-
-	*/
-	void movement_input_player(Players player) {
-		if (_kbhit()) { // waiting until key is being pressed
-			switch (_getch()) {
-			case 'k':
-				setter_direction(player, DOWN);
-				break;
-			case 's':
-				setter_direction(player, DOWN);
-				break;
-			case 'i':
-				setter_direction(player, UP);
-				break;
-			case 'w':
-				setter_direction(player, UP);
-				break;
-			default:
-				player.move = STOP; // in case of player hit wrong key
-				break;
-			}
-		}
-	}
-	/*
-	Routine Description:
 		Changing Array values based of enum of player
 
 	Arguments:
@@ -111,7 +67,7 @@ public:
 		Default case returning the same array to player.
 
 	*/
-	int* player_move(Players player) {
+	int* player_move(Players& player) {
 		int* new_arr{}; // init pointers
 		int first_num_in_arr{};
 		switch (player.move) {
@@ -129,6 +85,35 @@ public:
 			return new_arr; //returning new array to main
 		default:
 			return player.player_position;
+
+		}
+	}
+	/*
+	Routine Description:
+		Setting direction based on the given direction on args
+
+	Arguments:
+		Player obj = Changing this player position
+		eDirection = Changing the Direction based to given
+	Return Value:
+		None = changing the poistion of the player
+
+	*/
+	void setter_direction(char key) {
+		switch (key)
+		{
+		case 'w':
+			move = UP;
+			break;
+		case 's':
+			move = DOWN;
+			break;
+		case 'i':
+			move = UP;
+			break;
+		case 'k':
+			move = DOWN;
+			break;
 		}
 	}
 };
@@ -179,6 +164,39 @@ void build(const BoardObj board, BoardObj ball, const Players player1  , const P
 
 }
 
+/*
+Routine Description:
+	Assign enum to player based on thier pressed key
+
+Arguments:
+	Playyers obj = inorder to change direction setting need to recvice to what player change move
+Return Value:
+	eDirection - returning the direction that the player will face and assisning it to Player.move
+
+*/
+void movement_input_player(Players& player1, Players& player2) {
+	if (_kbhit()) { // waiting until key is being pressed
+		switch (_getch()) {
+		case 'k':
+			player2.setter_direction('k');
+			break;
+		case 's':
+			player1.setter_direction('s');
+			break;
+		case 'i':
+			player2.setter_direction('i');
+			break;
+		case 'w':
+			player1.setter_direction('w');
+			break;
+		default:
+			player1.move = STOP; // in case of player hit wrong key
+			player2.move = STOP; // in case of player hit wrong key
+			break;
+		}
+	}
+}
+
 int main() {
 	bool gameover = false;
 	//creating board obj , board x = 20 board y = 70
@@ -194,8 +212,7 @@ int main() {
 	delete left_player_x;// deallocating memory of players
 	while (!gameover) {
 		build(board, ball, player1, player2);
-		player1.movement_input_player(player1);
-		player2.movement_input_player(player2);
+		movement_input_player(player1,player2);
 		if (player1.move != STOP)
 			player1.player_position = player1.player_move(player1);
 		if (player2.move != STOP) 
