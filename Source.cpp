@@ -1,15 +1,16 @@
 #include <iostream>
 #include <conio.h>
+
 using namespace std;
 
 enum eDirection{STOP = 0 , UP , DOWN};
 
-class Boardobj{
+class BoardObj{
 public:
 	int place_in_y;
 	int place_in_x;
 	
-	Boardobj(int y, int x) {
+	BoardObj(int y, int x) {
 		place_in_y = y;
 		place_in_x = x;
 	}
@@ -21,8 +22,19 @@ public:
 	int place_in_wide;
 	int player_score = 0;
 	eDirection move = STOP;
+	/*
+	Routine Description:
+		Constructor of Players Class
+
+	Arguments:
+		point of intgers - using the pointer to assign a new array to player object
+		intger y - setting the wide position of player
+	Return Value:
+		None - creating a new object in the class
+
+	*/
 	Players(int* ptr, int y) {
-		player_position = creating_player(10);
+		player_position = creating_player(5);
 		place_in_wide = y;
 	}
 	int* creating_player(int num) {
@@ -34,6 +46,16 @@ public:
 		return arr;// returning place for i 
 
 	}
+	/*
+	Routine Description:
+		Assign enum to player based on thier pressed key
+
+	Arguments:
+		Void
+	Return Value:
+		eDirection - returning the direction that the player will face and assisning it to Player.move
+
+	*/
 	eDirection movement_input_player() {
 		if (_kbhit()) { // waiting until key is being pressed
 			switch (_getch()) {
@@ -48,7 +70,17 @@ public:
 			}
 		}
 	}
+	/*
+	Routine Description:
+		Changing Array values based of enum of player
 
+	Arguments:
+		Players Obj - using player array to deciced what new number will be given to array
+	Return Value:
+		if player enum is UP or DOWN reutning pointer of array of int
+		Default case returning the same array to player.
+
+	*/
 	int* player_move(Players player) {
 		int* new_arr{}; // init pointers
 		int first_num_in_arr{};
@@ -70,10 +102,23 @@ public:
 		}
 	}
 };
-void build(const Boardobj board, Boardobj ball, const Players player1  , const Players player2) {
+/*
+ Routine Description:
+
+	Build the board
+
+Arguments:
+	BoardObj board - Getting height and the wide of the board.
+	BoardObj Ball - Getting ball position
+	Player player1,player1 - using player position to place them in board
+
+Return value -
+	Void
+*/
+void build(const BoardObj board, BoardObj ball, const Players player1  , const Players player2) {
 	system("cls");
-	int place_in_array_right = 0;
-	int place_in_array_left = 0;
+	int place_in_array_right = 0; // setting array position to 0 at start of the run
+	int place_in_array_left = 0; // setting array position to 0 at start of the run
 	for (int i{}; i < board.place_in_x; i++) {
 		for (int j{}; j < 1; j++) { 
 			if (i == 0 || i == board.place_in_x -1) {
@@ -81,24 +126,24 @@ void build(const Boardobj board, Boardobj ball, const Players player1  , const P
 					cout << "#"; // builds floor and celling
 			}
 			else {
-				cout << "#";
+				cout << "#";// builds left wall
 				for (int w{}; w < board.place_in_y - 2; w++) {
 					if (i == ball.place_in_x && w == ball.place_in_y)
 						cout << "*";// placing ball
 					else if (player2.player_position[place_in_array_left] == i && player2.place_in_wide == w) {
 						cout << "|"; // building left player
-						place_in_array_left++; // adding 1 to move in array
+						place_in_array_left++; // adding 1 to move in left array
 					}
 					else if (player1.player_position[place_in_array_right] == i && player1.place_in_wide == w) {
 						cout << "|"; // building right player
-						place_in_array_right++;
+						place_in_array_right++;// adding 1 to move in right array
 					}
 					else
 						cout << " "; //blank spaces for right wall
 				}
 				cout << "#"; // right wall
 			}
-			cout << endl;
+			cout << endl; // endline for new row.
 		}
 	}
 
@@ -107,9 +152,9 @@ void build(const Boardobj board, Boardobj ball, const Players player1  , const P
 int main() {
 	bool gameover = false;
 	//creating board obj , board x = 20 board y = 70
-	Boardobj board(70, 20);
+	BoardObj board(70, 20);
 	//creating ball obj , ball in the middle for the start
-	Boardobj ball(board.place_in_y/ 2, board.place_in_x/ 2);
+	BoardObj ball(board.place_in_y/ 2, board.place_in_x/ 2);
 	int* right_player_x{}; // creating player1 pointer
 	int* left_player_x{};// creating player2 pointer
 	// creating 2 players
