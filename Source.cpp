@@ -17,6 +17,19 @@ public:
 };
 
 class Players {
+private:
+	/*
+	Routine Description:
+		Setting direction based on the given direction on args
+
+	Arguments:
+		Player obj = Changing this player position
+		eDirection = Changing the Direction based to given
+	Return Value:
+		None = changing the poistion of the player
+
+	*/
+	void setter_direction(Players player, const eDirection way) { player.move = way; }
 public:
 	int * player_position;
 	int place_in_wide;
@@ -37,6 +50,16 @@ public:
 		player_position = creating_player(5);
 		place_in_wide = y;
 	}
+	/*
+	Routine Description:
+		Creating array of new position
+
+	Arguments:
+		Int num - where to start position
+		
+	Return Value:
+		int pointer - returning a new adress to the array
+	*/
 	int* creating_player(int num) {
 		int* arr = new int[5]; // setting array to have 5 places
 		for (int i{}; i < 5; i++) {
@@ -51,22 +74,29 @@ public:
 		Assign enum to player based on thier pressed key
 
 	Arguments:
-		Void
+		Playyers obj = inorder to change direction setting need to recvice to what player change move
 	Return Value:
 		eDirection - returning the direction that the player will face and assisning it to Player.move
 
 	*/
-	eDirection movement_input_player() {
+	void movement_input_player(Players player) {
 		if (_kbhit()) { // waiting until key is being pressed
 			switch (_getch()) {
 			case 'k':
+				setter_direction(player, DOWN);
+				break;
 			case 's':
-				return DOWN; // assigning DOWN to movement - player 1 - left player
+				setter_direction(player, DOWN);
+				break;
 			case 'i':
+				setter_direction(player, UP);
+				break;
 			case 'w':
-				return UP; // assigning UP to movement - player 1 - left player
+				setter_direction(player, UP);
+				break;
 			default:
-				return STOP; // in case of player hit wrong key
+				player.move = STOP; // in case of player hit wrong key
+				break;
 			}
 		}
 	}
@@ -164,8 +194,8 @@ int main() {
 	delete left_player_x;// deallocating memory of players
 	while (!gameover) {
 		build(board, ball, player1, player2);
-		player1.move = player1.movement_input_player();
-		player2.move = player2.movement_input_player();
+		player1.movement_input_player(player1);
+		player2.movement_input_player(player2);
 		if (player1.move != STOP)
 			player1.player_position = player1.player_move(player1);
 		if (player2.move != STOP) 
