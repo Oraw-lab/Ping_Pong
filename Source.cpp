@@ -3,16 +3,72 @@
 
 using namespace std;
 
-enum eDirection{STOP = 0 , UP , DOWN};
+enum eDirection{STOP = 0 , UP , DOWN, RIGHT, LEFT};
 
 class BoardObj{
 public:
 	int place_in_y;
 	int place_in_x;
-	
+	eDirection ball_Up = DOWN;
+	eDirection ball_move = LEFT;
+	/*
+	Routine Description:
+		Constructor of BoardObj Class
+		board and ball is are members in this class
+
+	Arguments:
+		int y = wide of board
+		int x = high of board
+	Return Value:
+		New BoardObj
+
+	*/
 	BoardObj(int y, int x) {
 		place_in_y = y;
 		place_in_x = x;
+	}
+
+	/*
+	Routine Description:
+		Move ball object in board
+
+	Arguments:
+		Void
+	Return Value:
+		Void
+
+	*/
+	void ball_movement() {
+		switch (ball_Up)
+		{
+		case DOWN:
+			switch (ball_move)
+			{
+			case LEFT:
+				place_in_y = place_in_y--; // Move Left
+				place_in_x = place_in_x++; // Move DOWN
+				break;
+			case RIGHT:
+				place_in_y = place_in_y++; // Move Right
+				place_in_x = place_in_x++; // Move DOWN
+				break;
+			}
+			break;
+		case UP:
+			switch (ball_move)
+			{
+			case LEFT:
+				place_in_y = place_in_y--;// Move Left
+				place_in_x = place_in_x--;// Move UP
+				break;
+			case RIGHT:
+				place_in_y = place_in_y++;// Move Right
+				place_in_x = place_in_x--;// Move UP
+				break;
+			}
+			break;
+		}
+
 	}
 };
 
@@ -93,8 +149,7 @@ public:
 		Setting direction based on the given direction on args
 
 	Arguments:
-		Player obj = Changing this player position
-		eDirection = Changing the Direction based to given
+		Char = Based on key pressed changing postion 
 	Return Value:
 		None = changing the poistion of the player
 
@@ -103,16 +158,16 @@ public:
 		switch (key)
 		{
 		case 'w':
-			move = UP;
+			move = UP;// Actual set
 			break;
 		case 's':
-			move = DOWN;
+			move = DOWN;// Actual set
 			break;
 		case 'i':
-			move = UP;
+			move = UP;// Actual set
 			break;
 		case 'k':
-			move = DOWN;
+			move = DOWN;// Actual set
 			break;
 		}
 	}
@@ -130,20 +185,28 @@ Arguments:
 Return value -
 	Void
 */
-void build(const BoardObj board, BoardObj ball, const Players player1  , const Players player2) {
+void build(const BoardObj board, BoardObj& ball, const Players player1  , const Players player2) {
 	system("cls");
 	int place_in_array_right = 0; // setting array position to 0 at start of the run
 	int place_in_array_left = 0; // setting array position to 0 at start of the run
 	for (int i{}; i < board.place_in_x; i++) {
 		for (int j{}; j < 1; j++) { 
-			if (i == 0 || i == board.place_in_x -1) {
+			if (i == 0 || i == board.place_in_x - 1) {
 				for (int w{}; w < board.place_in_y; w++)
 					cout << "#"; // builds floor and celling
 			}
 			else {
 				cout << "#";// builds left wall
 				for (int w{}; w < board.place_in_y - 2; w++) {
-					if (i == ball.place_in_x && w == ball.place_in_y)
+					if (ball.place_in_x == 0) // if ball hits celling moving ball down
+						ball.ball_Up = DOWN;
+					else if (ball.place_in_x == board.place_in_x - 1) // if ball hits floor moving ball UP
+						ball.ball_Up = UP;
+					else if (ball.place_in_y == board.place_in_y - 69) // if ball hits left walls moving ball RIGHT
+						ball.ball_move = RIGHT;
+					else if (ball.place_in_y == board.place_in_y - 1)// if ball hits right walls moving ball LEFT
+						ball.ball_move = LEFT;
+					else if (i == ball.place_in_x && w == ball.place_in_y)
 						cout << "*";// placing ball
 					else if (player2.player_position[place_in_array_left] == i && player2.place_in_wide == w) {
 						cout << "|"; // building left player
@@ -169,25 +232,25 @@ Routine Description:
 	Assign enum to player based on thier pressed key
 
 Arguments:
-	Playyers obj = inorder to change direction setting need to recvice to what player change move
-Return Value:
-	eDirection - returning the direction that the player will face and assisning it to Player.move
+	Players obj = inorder to change direction setting need to recvice to what player change move
+void Value:
+	Placing move keys into player objs with & pointer.
 
 */
 void movement_input_player(Players& player1, Players& player2) {
 	if (_kbhit()) { // waiting until key is being pressed
 		switch (_getch()) {
 		case 'k':
-			player2.setter_direction('k');
+			player2.setter_direction('k');// setting Down for player2
 			break;
 		case 's':
-			player1.setter_direction('s');
+			player1.setter_direction('s');// setting Down for player1
 			break;
 		case 'i':
-			player2.setter_direction('i');
+			player2.setter_direction('i');// setting UP for player2
 			break;
 		case 'w':
-			player1.setter_direction('w');
+			player1.setter_direction('w');// setting UP for player1
 			break;
 		default:
 			player1.move = STOP; // in case of player hit wrong key
@@ -211,6 +274,7 @@ int main() {
 	delete right_player_x;// deallocating memory of players
 	delete left_player_x;// deallocating memory of players
 	while (!gameover) {
+		ball.ball_movement();
 		build(board, ball, player1, player2);
 		movement_input_player(player1,player2);
 		if (player1.move != STOP)
