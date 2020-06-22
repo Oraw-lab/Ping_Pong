@@ -4,13 +4,15 @@
 using namespace std;
 
 enum eDirection{STOP = 0 , UP , DOWN, RIGHT, LEFT};
+bool binary_search(int nums[], int low, int high, int num);
+
 
 class BoardObj{
 public:
 	int place_in_y;
 	int place_in_x;
 	eDirection ball_Up = DOWN;
-	eDirection ball_move = LEFT;
+	eDirection ball_move = RIGHT;
 	/*
 	Routine Description:
 		Constructor of BoardObj Class
@@ -126,21 +128,21 @@ public:
 	int* player_move(Players& player) {
 		int* new_arr{}; // init pointers
 		int first_num_in_arr{};
-		switch (player.move) {
+		switch (move) {
 		case UP:
-			first_num_in_arr = player.player_position[0];
+			first_num_in_arr = player_position[0];
 			first_num_in_arr--;
 			new_arr = creating_player(first_num_in_arr); // adding 1 for snake in high to move snake top
-			player.move = STOP;
+			move = STOP;
 			return new_arr; //returning new array to main
 		case DOWN:
-			first_num_in_arr = player.player_position[0];
+			first_num_in_arr = player_position[0];
 			first_num_in_arr++;
 			new_arr = creating_player(first_num_in_arr); // adding 1 for snake in high to move snake down
-			player.move = STOP;
+			move = STOP;
 			return new_arr; //returning new array to main
 		default:
-			return player.player_position;
+			return player_position;
 
 		}
 	}
@@ -202,10 +204,25 @@ void build(const BoardObj board, BoardObj& ball, const Players player1  , const 
 						ball.ball_Up = DOWN;
 					else if (ball.place_in_x == board.place_in_x - 1) // if ball hits floor moving ball UP
 						ball.ball_Up = UP;
-					else if (ball.place_in_y == board.place_in_y - 69) // if ball hits left walls moving ball RIGHT
-						ball.ball_move = RIGHT;
-					else if (ball.place_in_y == board.place_in_y - 1)// if ball hits right walls moving ball LEFT
-						ball.ball_move = LEFT;
+					else if (ball.place_in_y == board.place_in_y - 69) // if ball hits left walls checking if hit player
+						if (binary_search(player2.player_position, 0, 5, ball.place_in_x)) // calling binary search to see if ball hits player
+							ball.ball_move = RIGHT; // if it hits moving ball to right side
+						else // ball reset
+						{
+							ball.place_in_x = board.place_in_x / 2; // ball in middle
+							ball.place_in_y = board.place_in_y / 2; // ball in middle
+							ball.ball_Up = DOWN; // ball moving down
+						}
+					else if (ball.place_in_y == board.place_in_y - 3) { // if ball hits right walls checking if hit player
+						if (binary_search(player1.player_position, 0, 5, ball.place_in_x))// calling binary search to see if ball hits player
+							ball.ball_move = LEFT;// if it hits moving ball to LEFT side
+						else // ball reset
+						{
+							ball.place_in_x = board.place_in_x / 2; // ball in middle
+							ball.place_in_y = board.place_in_y / 2; // ball in middle
+							ball.ball_Up = UP; // ball moving UP
+						}
+					}
 					else if (i == ball.place_in_x && w == ball.place_in_y)
 						cout << "*";// placing ball
 					else if (player2.player_position[place_in_array_left] == i && player2.place_in_wide == w) {
@@ -226,7 +243,39 @@ void build(const BoardObj board, BoardObj& ball, const Players player1  , const 
 	}
 
 }
+/*
+Routine Description:
+	Checking if ball hits players
 
+Arguments:
+	nums[] = array of player position
+	low = lowest position in the array 
+	high = high postion in the array
+	num = the number we are looking for
+void Value:
+	returning ture or false - if ball hits player returning true 
+
+*/
+bool binary_search(int nums[], int low , int high , int num) {
+	//base case
+	if (low > high) 
+		return false;
+	//pick the middle item
+	int middle = low + (high - low) / 2;
+
+	//if number is == to the number we are looking for returning true
+	if (nums[middle] == num) 
+		return true;
+
+	// if the middle arr number is bigger than the one we look
+	// we call binary search but now from the middle of the left side
+	if (num < nums[middle]) 
+		return binary_search(nums, low, middle - 1, num);
+	// if the middle arr number is smaller than the one we look
+	// we call binary search but now from the middle of the right side
+	else 
+		return binary_search(nums, middle + 1, high, num);
+}
 /*
 Routine Description:
 	Assign enum to player based on thier pressed key
