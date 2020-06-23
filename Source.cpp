@@ -1,179 +1,11 @@
 #include <iostream>
 #include <conio.h>
-
+#include "Player.h"
+#include "Board.h"
 using namespace std;
 
-enum eDirection{STOP = 0 , UP , DOWN, RIGHT, LEFT};
 bool binary_search(int nums[], int low, int high, int num);
 
-
-class BoardObj{
-public:
-	int place_in_y;
-	int place_in_x;
-	eDirection ball_Up = DOWN;
-	eDirection ball_move = RIGHT;
-	/*
-	Routine Description:
-		Constructor of BoardObj Class
-		board and ball is are members in this class
-
-	Arguments:
-		int y = wide of board
-		int x = high of board
-	Return Value:
-		New BoardObj
-
-	*/
-	BoardObj(int y, int x) {
-		place_in_y = y;
-		place_in_x = x;
-	}
-
-	/*
-	Routine Description:
-		Move ball object in board
-
-	Arguments:
-		Void
-	Return Value:
-		Void
-
-	*/
-	void ball_movement() {
-		switch (ball_Up)
-		{
-		case DOWN:
-			switch (ball_move)
-			{
-			case LEFT:
-				place_in_y = place_in_y--; // Move Left
-				place_in_x = place_in_x++; // Move DOWN
-				break;
-			case RIGHT:
-				place_in_y = place_in_y++; // Move Right
-				place_in_x = place_in_x++; // Move DOWN
-				break;
-			}
-			break;
-		case UP:
-			switch (ball_move)
-			{
-			case LEFT:
-				place_in_y = place_in_y--;// Move Left
-				place_in_x = place_in_x--;// Move UP
-				break;
-			case RIGHT:
-				place_in_y = place_in_y++;// Move Right
-				place_in_x = place_in_x--;// Move UP
-				break;
-			}
-			break;
-		}
-
-	}
-};
-
-class Players {
-public:
-	int * player_position;
-	int place_in_wide;
-	int player_score = 0;
-	eDirection move = STOP;
-	/*
-	Routine Description:
-		Constructor of Players Class
-
-	Arguments:
-		point of intgers - using the pointer to assign a new array to player object
-		intger y - setting the wide position of player
-	Return Value:
-		None - creating a new object in the class
-
-	*/
-	Players(int* ptr, int y) {
-		player_position = creating_player(5);
-		place_in_wide = y;
-	}
-	/*
-	Routine Description:
-		Creating array of new position
-
-	Arguments:
-		Int num - where to start position
-		
-	Return Value:
-		int pointer - returning a new adress to the array
-	*/
-	int* creating_player(int num) {
-		int* arr = new int[5]; // setting array to have 5 places
-		for (int i{}; i < 5; i++) {
-			arr[i] = num;  // assigned number to array
-			num++;
-		}
-		return arr;// returning place for i 
-
-	}
-	/*
-	Routine Description:
-		Changing Array values based of enum of player
-
-	Arguments:
-		Players Obj - using player array to deciced what new number will be given to array
-	Return Value:
-		if player enum is UP or DOWN reutning pointer of array of int
-		Default case returning the same array to player.
-
-	*/
-	int* player_move(Players& player) {
-		int* new_arr{}; // init pointers
-		int first_num_in_arr{};
-		switch (move) {
-		case UP:
-			first_num_in_arr = player_position[0];
-			first_num_in_arr--;
-			new_arr = creating_player(first_num_in_arr); // adding 1 for snake in high to move snake top
-			move = STOP;
-			return new_arr; //returning new array to main
-		case DOWN:
-			first_num_in_arr = player_position[0];
-			first_num_in_arr++;
-			new_arr = creating_player(first_num_in_arr); // adding 1 for snake in high to move snake down
-			move = STOP;
-			return new_arr; //returning new array to main
-		default:
-			return player_position;
-
-		}
-	}
-	/*
-	Routine Description:
-		Setting direction based on the given direction on args
-
-	Arguments:
-		Char = Based on key pressed changing postion 
-	Return Value:
-		None = changing the poistion of the player
-
-	*/
-	void setter_direction(char key) {
-		switch (key)
-		{
-		case 'w':
-			move = UP;// Actual set
-			break;
-		case 's':
-			move = DOWN;// Actual set
-			break;
-		case 'i':
-			move = UP;// Actual set
-			break;
-		case 'k':
-			move = DOWN;// Actual set
-			break;
-		}
-	}
-};
 /*
  Routine Description:
 
@@ -201,26 +33,26 @@ void build(const BoardObj board, BoardObj& ball, const Players player1  , const 
 				cout << "#";// builds left wall
 				for (int w{}; w < board.place_in_y - 2; w++) {
 					if (ball.place_in_x == 0) // if ball hits celling moving ball down
-						ball.ball_Up = DOWN;
+						ball.ball_setter_up(BoardObj::DOWN); // setting move to down
 					else if (ball.place_in_x == board.place_in_x - 1) // if ball hits floor moving ball UP
-						ball.ball_Up = UP;
+						ball.ball_setter_up(BoardObj::UP);
 					else if (ball.place_in_y == board.place_in_y - 69) // if ball hits left walls checking if hit player
 						if (binary_search(player2.player_position, 0, 5, ball.place_in_x)) // calling binary search to see if ball hits player
-							ball.ball_move = RIGHT; // if it hits moving ball to right side
+							ball.ball_setter_wide(BoardObj::RIGHT); // if it hits moving ball to right side
 						else // ball reset
 						{
 							ball.place_in_x = board.place_in_x / 2; // ball in middle
 							ball.place_in_y = board.place_in_y / 2; // ball in middle
-							ball.ball_Up = DOWN; // ball moving down
+							ball.ball_setter_up(BoardObj::DOWN); // ball moving down
 						}
 					else if (ball.place_in_y == board.place_in_y - 3) { // if ball hits right walls checking if hit player
 						if (binary_search(player1.player_position, 0, 5, ball.place_in_x))// calling binary search to see if ball hits player
-							ball.ball_move = LEFT;// if it hits moving ball to LEFT side
+							ball.ball_setter_wide(BoardObj::LEFT);// if it hits moving ball to LEFT side
 						else // ball reset
 						{
 							ball.place_in_x = board.place_in_x / 2; // ball in middle
 							ball.place_in_y = board.place_in_y / 2; // ball in middle
-							ball.ball_Up = UP; // ball moving UP
+							ball.ball_setter_up(BoardObj::UP); // ball moving UP
 						}
 					}
 					else if (i == ball.place_in_x && w == ball.place_in_y)
@@ -302,8 +134,8 @@ void movement_input_player(Players& player1, Players& player2) {
 			player1.setter_direction('w');// setting UP for player1
 			break;
 		default:
-			player1.move = STOP; // in case of player hit wrong key
-			player2.move = STOP; // in case of player hit wrong key
+			player1.setter_direction('g'); // in case of player hit wrong key
+			player2.setter_direction('g'); // in case of player hit wrong key
 			break;
 		}
 	}
@@ -326,9 +158,9 @@ int main() {
 		ball.ball_movement();
 		build(board, ball, player1, player2);
 		movement_input_player(player1,player2);
-		if (player1.move != STOP)
+		if (player1.move != Players::STOP)
 			player1.player_position = player1.player_move(player1);
-		if (player2.move != STOP) 
+		if (player2.move != Players::STOP)
 			player2.player_position = player2.player_move(player2);
 	}
 }
